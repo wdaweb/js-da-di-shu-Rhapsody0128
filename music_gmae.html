@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            text-align: center;
+            font-size: 24px;
+            font-family: 微軟正黑體;
+            margin: 0;
+        }
+
+        #all {
+            margin: auto;
+            height: 125vh;
+            width: 98vw;
+            background-repeat: no-repeat;
+            background-size: cover;
+            padding-top: 20px;
+            transition: 2s;
+
+        }
+
+        #screen {
+            margin: auto;
+            position: relative;
+        }
+
+        #board {
+            margin: auto;
+            width: 600px;
+            height: 50px;
+        }
+
+        .scr {
+            position: relative;
+            width: 150px;
+            height: 600px;
+            transition: 4s;
+            font-size: 30px;
+            font-family: 微軟正黑體;
+            animation: drop-shadow 5s infinite;
+
+        }
+
+        .btn {
+            position: relative;
+            width: 150px;
+            height: 100px;
+            text-align: center;
+            transition: 0.5s;
+            font-size: 40px;
+            font-family: 微軟正黑體;
+            animation: drop-shadow 5s infinite;
+
+        }
+
+        .faller {
+            width: 150px;
+            height: 20px;
+            background: rgb(214, 72, 72);
+            position: absolute;
+            top: 1%;
+            animation: box-shadow 20s infinite;
+            /* transition: 30s; */
+        }
+
+        .judge {
+            width: 148px;
+            height: 30px;
+            position: absolute;
+            top: 79%;
+            border: rgb(16, 19, 224) solid 1px;
+            animation: box-shadow 20s infinite;
+            font-size: 20px;
+        }
+
+        .click {
+            background: rgb(255, 213, 229);
+        }
+
+
+
+        @keyframes drop-shadow {
+            from {
+                filter: drop-shadow(0px 0px 5px rgb(5, 157, 177));
+            }
+
+            33% {
+                filter: drop-shadow(0px 0px 10px green);
+            }
+
+            66% {
+                filter: drop-shadow(0px 0px 8px rgb(161, 163, 16));
+            }
+
+            100% {
+                filter: drop-shadow(0px 0px 5px rgb(77, 141, 4));
+            }
+        }
+
+        @keyframes box-shadow {
+            from {
+                box-shadow: 0px 0px 5px rgb(208, 238, 41);
+            }
+
+            33% {
+                box-shadow: 0px 0px 10px green;
+            }
+
+            66% {
+                box-shadow: 0px 0px 8px rgb(185, 42, 154);
+            }
+
+            100% {
+                box-shadow: 0px 0px 5px rgb(35, 170, 194);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id='all'>
+        <table id="screen" border="1px">
+            <tr>
+                <td class='scr'>
+                    <div class="judge"></div>
+                </td>
+                <td class='scr'>
+                    <div class="judge"></div>
+                </td>
+                <td class='scr'>
+                    <div class="judge"></div>
+                </td>
+                <td class='scr'>
+                    <div class="judge"></div>
+                </td>
+                <td class='scr'>
+                    <div class="judge"></div>
+                </td>
+                <td class='scr'>
+                    <div class="judge"></div>
+                </td>
+            </tr>
+            <tr>
+                <td class='btn'>A</td>
+                <td class='btn'>S</td>
+                <td class='btn'>D</td>
+                <td class='btn'>4</td>
+                <td class='btn'>5</td>
+                <td class='btn'>6</td>
+            </tr>
+            </tr>
+        </table>
+        <input type="button" value="START" id='start'><br>
+        <select id="song">
+            <option value="">-------請選擇歌曲-------</option>
+            <option value="Undyne">Battle Against a True Hero</option>
+            <option value="Lemon">Lemon</option>
+
+        </select><br>
+        <span id='word'>
+            目前分數:<span id='score'>0</span>
+            COMBO:<span id='comboboard'>0</span>
+            <hr>名人榜
+        </span>
+        <table id='board' border="1">
+            <tr>
+                <td>名字</td>
+                <td>分數</td>
+            </tr>
+            <tr>
+                <td id='hplayerboard'></td>
+                <td id='hscoreboard'></td>
+            </tr>
+
+        </table>
+    </div>
+    <script>
+        const all = document.getElementById('all')
+        const start = document.getElementById('start')
+        const btns = document.getElementsByClassName('btn')
+        const scrs = document.getElementsByClassName('scr')
+        const fallers = document.getElementsByClassName('faller')
+        const board = document.getElementById('board')
+        const screen = document.getElementById('screen')
+        const score = document.getElementById('score')
+        const judges = document.getElementsByClassName('judge')
+        const comboboard = document.getElementById('comboboard')
+        const hplayerboard = document.getElementById('hplayerboard')
+        const hscoreboard = document.getElementById('hscoreboard')
+        const song = document.getElementById('song')
+        const word = document.getElementById('word')
+
+
+
+        let music = new Audio()
+        music.src = "./music/Lemon.mp3"
+        let keyboard = ['A', 'S', 'D', '4', '5', '6']
+
+        let ingame = false
+        let point = 0
+        let combo = 0
+        let perfect = 0
+        let excellent = 0
+        let good = 0
+        let maxcombo = 0
+        var j = 0
+
+
+
+
+        // START開始-----------------------------------------------------------
+        const ready = () => {
+            scrs[0].innerText = ('R')
+            scrs[1].innerText = ('E')
+            scrs[2].innerText = ('A')
+            scrs[3].innerText = ('D')
+            scrs[4].innerText = ('Y')
+            scrs[5].innerText = ('?')
+        }
+        const clear = () => {
+            scrs[0].innerHTML = ('<div class="judge"></div>')
+            scrs[1].innerHTML = ('<div class="judge"></div>')
+            scrs[2].innerHTML = ('<div class="judge"></div>')
+            scrs[3].innerHTML = ('<div class="judge"></div>')
+            scrs[4].innerHTML = ('<div class="judge"></div>')
+            scrs[5].innerHTML = ('<div class="judge"></div>')
+        }
+
+        start.onclick = () => {
+
+            // music.play()
+
+            start.disabled = true
+
+            perfect = 0
+            excellent = 0
+            good = 0
+            combo = 0
+            point = 0
+            maxcombo = 0
+            let i = song.selectedIndex
+            // console.log(i)
+            switch (song[i].value) {
+
+                case 'Undyne':
+                    Undyne()
+                    break;
+
+                case 'Lemon':
+                    Lemon()
+                    break;
+
+                default: ''
+                    start.disabled = false
+                    break;
+            }
+            run()
+        }
+
+
+        // 滑動方塊------------------------------------------------------------
+        const game = (k) => {
+            var i = 0
+            scrs[k].insertAdjacentHTML('afterbegin', ` <div class="faller" id="A${j}"></div>`)
+
+            let x = document.getElementById(`A${j}`)
+
+            j++
+
+            setInterval(() => {
+                x.style.top = `${i}%`
+                i++
+                if (parseInt(x.style.top) >= 99) {
+                    clearInterval()
+                    x.remove()
+                }
+            }, 12.5)
+        }
+
+        // 譜面執行------------------------------------------------------------
+        const run = () => {
+            let i = 0
+            let j = 0
+            let k = 0
+            let l = 0
+            let m = 0
+            let n = 0
+            while (A[`${i}`] != undefined) {
+                setTimeout('game(0)', A[`${i}`])
+                i++
+            }
+            while (S[`${j}`] != undefined) {
+                setTimeout('game(1)', S[`${j}`])
+                j++
+            }
+            while (D[`${k}`] != undefined) {
+                setTimeout('game(2)', D[`${k}`])
+                k++
+            }
+            while (num4[`${l}`] != undefined) {
+                setTimeout('game(3)', num4[`${l}`])
+                l++
+            }
+            while (num5[`${m}`] != undefined) {
+                setTimeout('game(4)', num5[`${m}`])
+                m++
+            }
+            while (num6[`${n}`] != undefined) {
+                setTimeout('game(5)', num6[`${n}`])
+                n++
+            }
+        }
+
+
+        // 點擊判斷-------------------------------------------------------------
+        const judge = (i) => {
+
+            let last = judges[i].previousElementSibling
+
+            if (last != null) {
+                var top = parseInt(last.style.top)
+                if (top == 80) {
+                    point += 10
+                    score.innerText = `${point}`
+                    combo++
+                    comboboard.innerText = `${combo}`
+                    last.remove()
+                    perfect++
+                    judges[i].innerText = ('perfect')
+                    setTimeout(() => {
+                        judges[i].innerText = ('')
+                    }, 500);
+                }
+                else if (85 > top && top > 75 && top != 80) {
+                    point += 5
+                    score.innerText = `${point}`
+                    combo++
+                    comboboard.innerText = `${combo}`
+                    last.remove()
+                    excellent++
+                    judges[i].innerText = ('excellent')
+                    setTimeout(() => {
+                        judges[i].innerText = ('')
+                    }, 500);
+                }
+                else if (90 >= top && top >= 85 || 75 >= top && top >= 70) {
+                    point += 3
+                    score.innerText = `${point}`
+                    combo++
+                    comboboard.innerText = `${combo}`
+                    last.remove()
+                    good++
+                    judges[i].innerText = ('good')
+                    setTimeout(() => {
+                        judges[i].innerText = ('')
+                    }, 500);
+                }
+                else {
+                    judges[i].innerText = ('miss')
+                    combo = 0
+                    comboboard.innerText = `${combo}`
+                    setTimeout(() => {
+                        judges[i].innerText = ('')
+                    }, 500);
+                }
+                if (combo == 10) {
+                    point += 5
+                    score.innerText = `${point}`
+                }
+                if (combo == 50) {
+                    point += 50
+                    score.innerText = `${point}`
+                }
+                if (combo == 100) {
+                    point += 200
+                    score.innerText = `${point}`
+                }
+                if (combo > 100 && combo <= 150) {
+                    point += 5
+                    score.innerText = `${point}`
+                }
+                if (combo > 150 && combo <= 200) {
+                    point += 10
+                    score.innerText = `${point}`
+                }
+                if (combo > 200 && combo <= 250) {
+                    point += 20
+                    score.innerText = `${point}`
+                }
+                if (combo > 250 && combo <= 300) {
+                    point += 30
+                    score.innerText = `${point}`
+                }
+                if (combo > maxcombo) {
+                    maxcombo = combo
+                }
+            }
+        }
+        setInterval(() => {
+            for (let judge of judges) {
+                let faller = judge.previousElementSibling
+                if (faller != null) {
+                    let top = parseInt(faller.style.top)
+                    if (top >= 98) {
+                        combo = 0
+                        comboboard.innerText = `${combo}`
+                    }
+                }
+            }
+        }, 12.5)
+
+
+        //點擊結果-------------------------------------------------------------
+
+        for (let btn of btns) {
+            btn.onclick = () => {
+                btn.classList.add('click')
+                setTimeout(() => {
+                    btn.classList.remove('click')
+                }, 500);
+                let x = btn.innerText
+                var i = keyboard.indexOf(`${x}`)
+                judge(i)
+            }
+        }
+        // 名人榜---------------------------------------------------------------
+        let hscore = { name: '', score: 0 }
+        let storage = JSON.parse(localStorage.getItem('hscore'))
+        if (storage != null) {
+
+            hscore.name = storage.name
+            hscore.score = storage.score
+
+            hscoreboard.innerText = hscore.score
+            hplayerboard.innerText = hscore.name
+
+        }
+        // over結束-----------------------------------------------------------
+        let over = () => {
+            music.pause()
+            music.currentTime = 0;
+            start.disabled = false
+            all.style.backgroundImage = ""
+            screen.style.background = ""
+            board.style.background = ''
+
+            alert(`恭喜您獲得${point}分`)
+            alert(`您的確率:
+                     perfect:${perfect}次
+                     excellent:${perfect}次
+                     good:${good}次
+                     最大COMBO: ${maxcombo}`)
+
+            if (storage == null || point > hscore.score) {
+
+                const input = prompt('恭喜最高分，請輸入名字')
+                if (input != null && input.trim() != '') {
+
+                    hscore.score = point
+                    hscore.name = input
+
+                    hscoreboard.innerText = hscore.score
+                    hplayerboard.innerText = hscore.name
+
+                    localStorage.setItem('hscore', JSON.stringify(hscore))
+                }
+            }
+        }
+
+        // 鍵盤點擊-----------------------------------------------------------
+        window.onkeydown = (event) => {
+            const x = event.key.toUpperCase()
+            if (x == 'A' || x == 'S' || x == 'D' || x == '4' || x == '5' || x == '6') {
+                let i = keyboard.indexOf(`${x}`)
+                // console.log(x + "," + event.timeStamp)
+                btns[i].click()
+            }
+
+            if (x == 'ENTER') {
+                start.click()
+                // console.log(A)
+                // console.log(S)
+                // console.log(D)
+                // console.log(num4)
+                // console.log(num5)
+                // console.log(num6)
+                // console.log(xA)
+                // console.log(xS)
+                // console.log(xD)
+                // console.log(xnum4)
+                // console.log(xnum5)
+                // console.log(xnum6)
+                // console.log(xxA)
+                // console.log(xxS)
+                // console.log(xxD)
+                // console.log(xxnum4)
+                // console.log(xxnum5)
+                // console.log(xxnum6)
+            }
+            // 創作者模式--------------------------------------------
+            // switch (x) {
+            //     case 'A':
+            //         if (A.length < 100) {
+            //             A.push(Math.round(event.timeStamp))
+            //             break;
+            //         }
+            //         else {
+            //             if (xA.length < 100) {
+            //                 xA.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //             else {
+            //                 xxA.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //         }
+            //     case 'S':
+            //         if (S.length < 100) {
+            //             S.push(Math.round(event.timeStamp))
+            //             break;
+            //         }
+            //         else {
+            //             if (xS.length < 100) {
+            //                 xS.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //             else {
+            //                 xxS.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //         }
+            //     case 'D':
+            //         if (D.length < 100) {
+            //             D.push(Math.round(event.timeStamp))
+            //             break;
+            //         }
+            //         else {
+            //             if (xD.length < 100) {
+            //                 xD.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //             else {
+            //                 xxD.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //         }
+            //     case '4':
+            //         if (num4.length < 100) {
+            //             num4.push(Math.round(event.timeStamp))
+            //             break;
+            //         }
+            //         else {
+            //             if (xnum4.length < 100) {
+            //                 xnum4.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //             else {
+            //                 xxnum4.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //         }
+            //     case '5':
+            //         if (num5.length < 100) {
+            //             num5.push(Math.round(event.timeStamp))
+            //             break;
+            //         }
+            //         else {
+            //             if (xnum5.length < 100) {
+            //                 xnum5.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //             else {
+            //                 xxnum5.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //         }
+            //     case '6':
+            //         if (num6.length < 100) {
+            //             num6.push(Math.round(event.timeStamp))
+            //             break;
+            //         }
+            //         else {
+            //             if (xnum5.length < 100) {
+            //                 xnum5.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //             else {
+            //                 xxnum6.push(Math.round(event.timeStamp))
+            //                 break;
+            //             }
+            //         }
+            // }
+        }
+        // 歌曲，譜面-----------------------------------------------------------
+
+        const Undyne = () => {
+
+            all.style.backgroundImage = "url(./music/illusion.jpg)"
+            word.style.color = 'orange'
+            board.style.background = 'white'
+            screen.style.background = 'white'
+            music.src = "./material/Undyne.mp3"
+
+            setTimeout('music.play()', 1250)
+            ready()
+            setTimeout('clear()', 2500)
+            setTimeout('over()', 161000)
+
+            UndyneA = [10498, 13674, 16706, 16906, 20098, 23322, 24866, 26450, 28650, 29722, 31234, 32890, 35098, 36082, 37642, 39258, 41498, 42482, 44042, 45650, 47938, 48897, 51282, 52873, 55266, 57634, 60098, 62506, 64209, 65057, 68266, 71345, 73657, 76049, 78489, 80961, 83306, 85793, 88129, 90369, 92753, 95161, 96898, 99161, 101281, 103697, 106113, 108489, 112089, 114449, 119345, 121921, 123689, 126393, 129137, 131625, 133449, 136097, 138665, 141385, 143209, 145145, 148985, 150993, 152945, 156593]
+            UndyneS = [11954, 15218, 16618, 18418, 21674, 23618, 25178, 26802, 28370, 30050, 31586, 33210, 34802, 36402, 37978, 39578, 41194, 42834, 44362, 45986, 47601, 50514, 53650, 56810, 59313, 63353, 66682, 69841, 72161, 74474, 76857, 79305, 82449, 84153, 86681, 88833, 91209, 93633, 97657, 100177, 104905, 110929, 116793, 121081, 124593, 128217, 130801, 134337, 136977, 140489, 146177, 147129, 151937, 153825, 155681, 157521]
+            UndyneD = [13298, 16546, 19730, 22458, 23898, 25490, 27074, 28018, 30282, 31914, 33522, 34498, 36730, 38274, 39898, 40850, 43114, 44681, 46297, 47274, 49730, 52106, 54450, 56034, 58465, 60881, 61657, 65897, 67481, 69089, 70553, 72889, 75233, 77673, 80130, 81745, 85001, 87409, 89609, 92001, 94433, 96009, 98401, 102465, 107249, 109713, 113297, 115705, 118041, 120193, 122761, 125465, 127289, 129937, 132561, 135209, 137817, 139553, 142249, 144153, 148137, 150009, 154841]
+            Undynenum4 = [4643, 5483, 5707, 6019, 7131, 7907, 8675, 8899, 9235, 11098, 11859, 12091, 12419, 13451, 14339, 15043, 15323, 15659, 17475, 18227, 18499, 18827, 19851, 20699, 21491, 21715, 22051, 23899, 24611, 24939, 25235, 26163, 27083, 27803, 28115, 28427, 30283, 31043, 31315, 31627, 32691, 33523, 34259, 34531, 34827, 36715, 37483, 37715, 38027, 39075, 39939, 40667, 40915, 41219, 43107, 43843, 44131, 44483, 45419, 46267, 46995, 47339, 47635, 48987, 51715, 54491, 59722, 61802, 62082, 64555, 67394, 74563, 77322, 80098, 87418, 90138, 93074, 100291, 100450, 101170, 101826, 103730, 104898, 105099, 105890, 106602, 108578, 109738, 109922, 110674, 113338, 114530, 114730, 115514, 119354, 119546, 120290, 122330, 124202, 124402, 125138, 127362, 128890, 129082, 129850, 133034, 133818, 135674, 136571, 137418, 138538, 138738, 139594, 141794, 143314, 143506, 144298, 146514, 148090, 148258, 149106, 152226, 153978, 155754, 156914]
+            Undynenum5 = [3915, 4323, 5259, 6307, 6843, 7323, 7635, 8499, 9523, 9820, 10531, 10811, 11659, 12739, 13251, 13684, 14059, 14875, 15971, 16243, 16899, 17211, 18035, 19147, 19627, 20139, 20419, 21267, 22339, 22635, 23363, 23643, 24443, 25499, 25995, 26507, 26819, 27579, 28747, 29043, 29771, 30019, 30851, 31923, 32459, 32931, 33251, 34075, 35131, 35427, 36147, 36451, 37283, 38323, 38868, 39338, 39691, 40483, 41539, 41827, 42538, 42835, 43674, 44787, 45258, 45732, 46019, 46835, 47915, 48259, 49243, 49699, 51915, 54690, 54916, 55403, 58315, 62298, 64738, 67578, 67794, 68187, 71242, 74818, 75283, 77498, 80330, 80539, 80954, 85706, 87690, 88146, 90306, 93210, 93418, 93826, 96842, 100578, 100954, 101338, 102378, 105274, 105658, 106074, 107731, 110058, 110482, 110938, 112690, 114874, 115306, 115722, 117666, 119722, 120098, 120530, 121706, 123658, 124546, 124930, 125370, 126666, 128194, 129202, 129634, 130074, 132018, 134346, 135242, 137002, 138162, 138938, 139346, 139794, 140778, 143698, 144098, 144522, 145722, 146914, 147666, 148458, 148890, 149330, 151274, 152962, 153786, 154154, 154522, 155338, 156578, 157738]
+            Undynenum6 = [5027, 6627, 8267, 10107, 11419, 13043, 14659, 16531, 17827, 19435, 21043, 22923, 24259, 25835, 27419, 29307, 30642, 32259, 33891, 35739, 37067, 38683, 40290, 42107, 43451, 45074, 46627, 48523, 49539, 52115, 55147, 60090, 62482, 64931, 67994, 70795, 75107, 77706, 80778, 84114, 85394, 87946, 90490, 93650, 96458, 100802, 103250, 104402, 105491, 107130, 110322, 112002, 114002, 115114, 116882, 119938, 121050, 122994, 124770, 125770, 129450, 130938, 134770, 136098, 137794, 139170, 140250, 143922, 145410, 147266, 148698, 150202, 153618, 154938, 156130, 157330]
+
+            A = UndyneA
+            S = UndyneS
+            D = UndyneD
+            num4 = Undynenum4
+            num5 = Undynenum5
+            num6 = Undynenum6
+        }
+
+
+        const Lemon = () => {
+
+            all.style.backgroundImage = "url(./music/lemon.jpg)"
+
+            music.src = "./music/Lemon.mp3"
+
+            setTimeout('music.play()', 1300)
+            ready()
+            setTimeout('clear()', 900)
+            setTimeout('over()', 88000)
+
+            let LemonA = [1986, 7475, 11563, 15682, 19842, 26850, 28738, 30115, 32938, 35026, 37066, 39146, 41178, 42594, 44706, 46802, 48746, 51522, 53594, 55674, 57778, 59090, 61826, 64586, 67386, 70154, 71562, 73594, 74978, 76370, 78442, 79138, 82538, 83234, 86010]
+            let LemonS = [3299, 6098, 10130, 14370, 18467, 22514, 27466, 29474, 31522, 33562, 35738, 37826, 39818, 43322, 45354, 47418, 49458, 50842, 52946, 55010, 57058, 59794, 61178, 63226, 65994, 68810, 72866, 75635, 76730, 78114, 79858, 82146, 83578, 85338, 86682]
+            let LemonD = [4659, 8722, 12915, 17098, 21179, 28074, 30826, 32226, 34274, 36418, 38434, 40562, 41906, 44082, 46042, 48058, 50162, 52250, 54250, 56338, 58474, 60466, 62538, 63930, 65330, 66698, 68082, 69434, 70834, 72234, 74306, 77082, 77786, 80514, 81794, 83914, 84602]
+            let Lemonnum4 = [1921, 2417, 3681, 5009, 6065, 7161, 8673, 10033, 11201, 12993, 14049, 15417, 16065, 17369, 19185, 20185, 21753, 24025, 26801, 27313, 27817, 29857, 31193, 32281, 33593, 34785, 36033, 37481, 38369, 39481, 40857, 42192, 44009, 44681, 45993, 47264, 47425, 48737, 50840, 52913, 55009, 56352, 57744, 59529, 60529, 61928, 62656, 63952, 65064, 66216, 67480, 68793, 70088, 70944, 71616, 72992, 73456, 73936, 75009, 76432, 77768, 79136, 80528, 81232, 82328, 83624, 84824, 86032]
+            let Lemonnum5 = [1777, 2289, 3369, 3865, 4697, 5217, 5745, 7337, 8505, 8825, 9833, 10185, 10897, 11465, 12841, 13337, 14345, 14881, 15713, 16233, 17057, 18209, 18545, 19489, 19865, 20505, 21209, 21921, 22577, 26617, 27121, 28129, 28625, 29169, 30041, 30873, 32105, 32649, 33433, 34633, 34985, 36273, 36737, 37649, 38177, 39169, 39681, 40505, 41025, 41905, 42985, 43425, 44537, 45121, 45609, 46273, 47808, 49457, 52232, 53616, 57048, 59361, 59761, 60168, 60704, 61368, 62120, 62496, 62880, 63505, 64160, 64904, 65280, 66009, 66728, 67664, 68304, 68984, 70344, 70760, 71168, 71792, 72496, 73257, 74536, 75648, 76280, 76784, 77424, 78096, 78640, 79328, 80008, 81656, 81968, 82632, 83288, 84000, 84616, 85344, 86704]
+            let Lemonnum6 = [1585, 2993, 4377, 7513, 8177, 9513, 10753, 11633, 12657, 13561, 14697, 16737, 18409, 19729, 20849, 22425, 26441, 28465, 29512, 30545, 31937, 33265, 34297, 35673, 36441, 37833, 38888, 40193, 41561, 43257, 44345, 45385, 46544, 48089, 50161, 51520, 54280, 55680, 58400, 59080, 59960, 61169, 62304, 63296, 64688, 65496, 66952, 68129, 69520, 70584, 72336, 73640, 74384, 76064, 77104, 78448, 79856, 81864, 82968, 84272, 85520]
+
+            A = LemonA
+            S = LemonS
+            D = LemonD
+            num4 = Lemonnum4
+            num5 = Lemonnum5
+            num6 = Lemonnum6
+        }
+
+
+        let xA = []
+        let xS = []
+        let xD = []
+        let xnum4 = []
+        let xnum5 = []
+        let xnum6 = []
+
+        let A = []
+        let S = []
+        let D = []
+        let num4 = []
+        let num5 = []
+        let num6 = []
+
+
+        // let xA = []
+        // let xS = []
+        // let xD = []
+        // let xnum4 = []
+        // let xnum5 = []
+        // let xnum6 = []
+
+        // let xxA = []
+        // let xxS = []
+        // let xxD = []
+        // let xxnum4 = []
+        // let xxnum5 = []
+        // let xxnum6 = []
+
+        // let A = []
+        // let S = []
+        // let D = []
+        // let num4 = []
+        // let num5 = []
+        // let num6 = []
+
+
+        // let xA = []
+        // let xS = []
+        // let xD = []
+        // let xnum4 = []
+        // let xnum5 = []
+        // let xnum6 = []
+
+        // let xxA = []
+        // let xxS = []
+        // let xxD = []
+        // let xxnum4 = []
+        // let xxnum5 = []
+        // let xxnum6 = []
+
+
+
+    </script>
+</body>
+
+</html>
